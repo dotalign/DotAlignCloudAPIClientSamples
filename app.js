@@ -57,14 +57,7 @@ async function getDataWithRetries(maxRetries, url, accessToken) {
       break;
     }
     catch (e) { 
-      console.log("Exception");
-      console.log("---------");
       console.log(e);
-      console.log("");
-
-      console.log("Response");
-      console.log("--------");
-      console.log(response);
 
       tryCount++;
 
