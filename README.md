@@ -4,7 +4,7 @@ A sample client app that hits the the DotAlign Cloud API.
 
 ## A bit of background
 
-Once DotAlign Cloud is deployed on an Azure tenant, you can write client apps to hit its API. This does require some security related configuration on the tenant, including creating an app registration for your applcation, and granting it the rights to hit the API. You can speak to the tenant administrator or reach out to team@dotalign.com for more information. 
+Once DotAlign Cloud is deployed on an Azure tenant, you can write client apps to hit its API. This does require some security related configuration on the tenant, including creating an app registration for your client application, and granting it the rights to hit the API. You can speak to the tenant administrator or reach out to team@dotalign.com for more information. 
 
 ## Configure 
 
