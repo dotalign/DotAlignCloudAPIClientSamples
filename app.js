@@ -38,7 +38,7 @@ async function getData(url, accessToken) {
 
 // This function gets an access token from Azure AD
 async function getAccessToken() {
-  var authEndpoint = "https://login.microsoftonline.com/ef816895-7d31-42b9-a2e6-a2cc244e05c5/oauth2/v2.0/token";
+  var authEndpoint = `https://login.microsoftonline.com/${params.tenant_id}/oauth2/v2.0/token`;
 
   var body = `grant_type=${params.grant_type}&client_id=${params.client_id}&`
     + `client_secret=${params.client_secret}&tenant_id=${params.tenant_id}&scope=${params.scope}`
