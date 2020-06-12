@@ -1,0 +1,16 @@
+{
+  "name": "dotcloudapiclient001",
+  "version": "1.0.0",
+  "description": "A client demonstrating calls to DotAlign Cloud's API",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jaspreet Bakshi",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "node-fetch": "^2.6.0",
+    "request": "^2.88.2"
+  }
+}
