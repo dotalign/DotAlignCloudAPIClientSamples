@@ -79,18 +79,21 @@ async function getPeopleData(accessToken, callParams) {
   var skip = callParams.skip;
   var take = callParams.take;
   var detailLevel = callParams.detailLevel;
-  
   var fetched = 0;
   var areMore = true;
   var maxRetries = 3;
+  var data = [];
 
   while (areMore) {
     var before = process.hrtime();
 
     var url = `${baseUrl}/people?SourceTeam=${sourceTeam}&Skip=${skip}&Take=${take}&IncludeDetailLevel=${detailLevel}`;
     
+    var result = null;
+
     try {
-      var peopleData = await getDataWithRetries(maxRetries, url, accessToken); 
+      result = await getDataWithRetries(maxRetries, url, accessToken); 
+      data.push(result.data);
     }
     catch (e) {
       console.log(`And exception was encountered while fetching data. ${fetched} records fetched so far.`)
@@ -98,53 +101,110 @@ async function getPeopleData(accessToken, callParams) {
       throw e;
     }
     
-    areMore = peopleData.are_more;
+    areMore = result.are_more;
     skip += take;
-    fetched += peopleData.data.length;
+    fetched += result.data.length;
 
     var elapsed = process.hrtime(before);
 
     var seconds = elapsed[0];
     var milliseconds = elapsed[1];
 
-    console.log(`Fetched ${peopleData.page_start} to ${peopleData.page_end} in ${seconds}.${milliseconds}s`);
+    console.log(`Fetched ${result.page_start} to ${result.page_end} in ${seconds}.${milliseconds}s`);
   }
 
   console.log(`Done...fetched ${fetched} people records`);
 
   return { 
-    fetched: fetched
+    fetched: fetched,
+    data: data
   }
 }
 
-async function doWork() { 
+async function getTeamMembers(accessToken, params) {
+  var teamNumber = params.teamNumber;
+  var skip = params.skip;
+  var take = params.take;
+  var fetched = 0;
+  var areMore = true;
+  var maxRetries = 3;
+  var data = [];
+
+  while (areMore) {
+    var before = process.hrtime();
+
+    var url = `${baseUrl}/teams/${teamNumber}/members?Skip=${skip}&Take=${take}&IncludeHealthStats=${includeHealthStats}`;
+    
+    var result = null;
+
+    try {
+      result = await getDataWithRetries(maxRetries, url, accessToken);
+      data.push(result.data);
+    }
+    catch (e) {
+      console.log(`And exception was encountered while fetching data. ${fetched} records fetched so far.`);
+      e.fetched = fetched;
+      throw e;
+    }
+    
+    areMore = result.are_more;
+    skip += take;
+    fetched += result.data.length;
+
+    var elapsed = process.hrtime(before);
+    var seconds = elapsed[0];
+    var milliseconds = elapsed[1];
+
+    console.log(`Fetched ${result.page_start} to ${result.page_end} in ${seconds}.${milliseconds}s`);
+  }
+
+  console.log(`Done...fetched ${fetched} team member records`);
+
+  return { 
+    fetched: fetched,
+    data: data
+  };
+}
+
+async function doWork(functionToCall, params) {
   var response = await getAccessToken();
   var accessToken = response.access_token;
-  var newRun = true;
+  var done = false;
   var fetched = 0;
 
-  while (true) {
-    var callParams = { 
-      sourceTeam: 1,
-      skip: newRun ? 0 : fetched,
-      take: 100,
-      detailLevel: "IncludeDependentDetailsAndInteractionStats"
-    };
+
+  while (!done) {
+    params.Skip = fetched;
 
     try {
       var before = process.hrtime();
-      var runResult = await getPeopleData(accessToken, callParams);
+      var runResult = await functionToCall(accessToken, params);
       var elapsed = process.hrtime(before);
       console.log(`Finished a run in ${elapsed[0]} seconds. ${runResult.fetched} items were fetched.`);
-      newRun = true;
+      done = true;
     } catch (e) {
       console.log(`An exception was encountered. Fetched ${e.fetched} so far.`)
       fetched = e.fetched;
-      newRun = false;
       response = await getAccessToken();
       accessToken = response.access_token;
     }
   }
 } 
 
-doWork();
+var peopleCallParams = { 
+  sourceTeam: 1,
+  skip: 0,
+  take: 100,
+  detailLevel: "IncludeDependentDetailsAndInteractionStats"
+}
+
+doWork(getPeopleData, peopleCallParams);
+
+// var teamCallParams = { 
+//   teamNumber: 1,
+//   skip: 0,
+//   take: 100,
+//   includeHealthStats: false
+// }
+
+// doWork(getTeamMembers, teamCallParams);
