@@ -1,5 +1,6 @@
 require('dotenv').config();
 const fetch = require("node-fetch");
+const dotAlignUtils = require("./dotalignUtils");
 
 const baseUrl = process.env.DOTALIGN_CLOUD_BASE_URL;
 
@@ -74,26 +75,24 @@ async function getDataWithRetries(maxRetries, url, accessToken) {
   return response;
 }
 
-async function getPeopleData(accessToken, callParams) {
-  var sourceTeam = callParams.sourceTeam;
-  var skip = callParams.skip;
-  var take = callParams.take;
-  var detailLevel = callParams.detailLevel;
+async function getSomeData(baseUrl, accessToken, params, urlCreator) {
+  var totalFetchCount = params.totalFetchCount;
   var fetched = 0;
   var areMore = true;
   var maxRetries = 3;
   var data = [];
 
-  while (areMore) {
+  while (areMore && fetched < totalFetchCount) {
     var before = process.hrtime();
-
-    var url = `${baseUrl}/people?SourceTeam=${sourceTeam}&Skip=${skip}&Take=${take}&IncludeDetailLevel=${detailLevel}`;
-    
+    var url = await urlCreator(baseUrl, params);
     var result = null;
 
     try {
       result = await getDataWithRetries(maxRetries, url, accessToken); 
-      data.push(result.data);
+
+      for (var i = 0; i < result.data.length; i++) { 
+        data.push(result.data[i]);
+      }
     }
     catch (e) {
       console.log(`And exception was encountered while fetching data. ${fetched} records fetched so far.`)
@@ -102,11 +101,10 @@ async function getPeopleData(accessToken, callParams) {
     }
     
     areMore = result.are_more;
-    skip += take;
+    params.skip += params.take;
     fetched += result.data.length;
 
     var elapsed = process.hrtime(before);
-
     var seconds = elapsed[0];
     var milliseconds = elapsed[1];
 
@@ -121,70 +119,25 @@ async function getPeopleData(accessToken, callParams) {
   }
 }
 
-async function getTeamMembers(accessToken, params) {
-  var teamNumber = params.teamNumber;
-  var skip = params.skip;
-  var take = params.take;
-  var fetched = 0;
-  var areMore = true;
-  var maxRetries = 3;
-  var data = [];
-
-  while (areMore) {
-    var before = process.hrtime();
-
-    var url = `${baseUrl}/teams/${teamNumber}/members?Skip=${skip}&Take=${take}&IncludeHealthStats=${includeHealthStats}`;
-    
-    var result = null;
-
-    try {
-      result = await getDataWithRetries(maxRetries, url, accessToken);
-      data.push(result.data);
-    }
-    catch (e) {
-      console.log(`And exception was encountered while fetching data. ${fetched} records fetched so far.`);
-      e.fetched = fetched;
-      throw e;
-    }
-    
-    areMore = result.are_more;
-    skip += take;
-    fetched += result.data.length;
-
-    var elapsed = process.hrtime(before);
-    var seconds = elapsed[0];
-    var milliseconds = elapsed[1];
-
-    console.log(`Fetched ${result.page_start} to ${result.page_end} in ${seconds}.${milliseconds}s`);
-  }
-
-  console.log(`Done...fetched ${fetched} team member records`);
-
-  return { 
-    fetched: fetched,
-    data: data
-  };
-}
-
-async function doWork(functionToCall, params) {
+async function getDataHandleTokenExpiration(baseUrl, params, urlCreator) {
   var response = await getAccessToken();
   var accessToken = response.access_token;
   var done = false;
   var fetched = 0;
 
-
   while (!done) {
-    params.Skip = fetched;
+    params.skip = fetched;
 
     var result = null;
 
     try {
       var before = process.hrtime();
-      result = await functionToCall(accessToken, params);
+      result = await getSomeData(baseUrl, accessToken, params, urlCreator);
       var elapsed = process.hrtime(before);
-      console.log(`Finished a run in ${elapsed[0]} seconds. ${runResult.fetched} items were fetched.`);
+      console.log(`Finished a run in ${elapsed[0]} seconds. ${result.fetched} items were fetched.`);
       done = true;
     } catch (e) {
+      dotAlignUtils.logObject(e);
       console.log(`An exception was encountered. Fetched ${e.fetched} so far.`)
       fetched = e.fetched;
       response = await getAccessToken();
@@ -195,20 +148,77 @@ async function doWork(functionToCall, params) {
   return result;
 } 
 
-var peopleCallParams = { 
-  sourceTeam: 1,
-  skip: 0,
-  take: 100,
-  detailLevel: "IncludeDependentDetailsAndInteractionStats"
+async function getTeamMemberFetchUrl(baseUrl, params) {
+  var teamNumber = params.teamNumber;
+  var skip = params.skip;
+  var take = params.take;
+  var includeHealthStats = params.includeHealthStats;
+  var url = `${baseUrl}/teams/${teamNumber}/members?Skip=${skip}&Take=${take}&IncludeHealthStats=${includeHealthStats}`;
+  return url;
 }
 
-doWork(getPeopleData, peopleCallParams);
+async function getPeopleFetchUrl(baseUrl, params) {
+  var teamNumber = params.teamNumber;
+  var skip = params.skip;
+  var take = params.take;
+  var detailLevel = params.detailLevel;
+  var url = `${baseUrl}/people?SourceTeam=${teamNumber}&Skip=${skip}&Take=${take}&IncludeDetailLevel=${detailLevel}`;
+  return url;
+}
 
-// var teamCallParams = { 
-//   teamNumber: 1,
-//   skip: 0,
-//   take: 100,
-//   includeHealthStats: false
-// }
+async function kickOffPeopleFetch() {
 
-// doWork(getTeamMembers, teamCallParams);
+  var peopleCallParams = { 
+    teamNumber: 1,
+    skip: 0,
+    take: 200,
+    detailLevel: "IncludeDependentDetailsAndInteractionStats",
+    totalFetchCount: 1000
+  }
+
+  var result = await getDataHandleTokenExpiration(baseUrl, peopleCallParams, getPeopleFetchUrl);
+
+  for (var i = 0; i < result.data.length; i++) {
+    
+    var person = { 
+      name: result.data[i].PersonNameText,
+      emailAddress: result.data[i].BestEmailAddrText,
+      companyName: result.data[i].BestJobMatchedCompanyName,
+      jobTitle: result.data[i].BestJobTitleText,
+      bestIntroducer: result.data[i].BestKnowerNameText,
+      phoneNumber: result.data[i].BestPhoneText,
+      relationshipScore: result.data[i].WeKnowPersonScore
+    };
+
+    dotAlignUtils.logObject(person);
+  }
+}
+
+async function kickOffTeamMemberFetch() {
+
+  var teamCallParams = { 
+    teamNumber: 1,
+    skip: 0,
+    take: 100,
+    includeHealthStats: false,
+    totalFetchCount: 200
+  }
+
+  var result = await getDataHandleTokenExpiration(baseUrl, teamCallParams, getTeamMemberFetchUrl);
+
+  for (var i = 0; i < result.data.length; i++) { 
+    
+    var teamMember = { 
+      name: result.data[i].name,
+      emailAddress: result.data[i].email,
+      teamName: result.data[i].teamName,
+      teamNumber: result.data[i].teamNumber 
+    };
+
+    dotAlignUtils.logObject(teamMember);
+  }
+}
+
+kickOffTeamMemberFetch();
+
+kickOffPeopleFetch();
