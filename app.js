@@ -176,9 +176,11 @@ async function doWork(functionToCall, params) {
   while (!done) {
     params.Skip = fetched;
 
+    var result = null;
+
     try {
       var before = process.hrtime();
-      var runResult = await functionToCall(accessToken, params);
+      result = await functionToCall(accessToken, params);
       var elapsed = process.hrtime(before);
       console.log(`Finished a run in ${elapsed[0]} seconds. ${runResult.fetched} items were fetched.`);
       done = true;
@@ -189,6 +191,8 @@ async function doWork(functionToCall, params) {
       accessToken = response.access_token;
     }
   }
+
+  return result;
 } 
 
 var peopleCallParams = { 
