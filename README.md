@@ -24,7 +24,7 @@ Now you can run one of the sample programs. The runnable programs have the forma
 
     > node app_iterateThroughContributors.js
 
-    What this program does is fetch the members of a team, and then iterate through all members to get each member's people and companies.
+What this program does is fetch the members of a team, and then iterate through all members to get each member's people and companies.
 
 ## Extra
 
