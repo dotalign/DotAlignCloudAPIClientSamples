@@ -109,7 +109,7 @@ async function getSomeData(baseUrl, accessToken, params, urlCreator) {
   }
 }
 
-async function getDataHandleTokenExpiration(environment, params, urlCreator) {
+async function fetchDC(environment, params, urlCreator) {
   var response = await getAccessToken(environment);
   var accessToken = response.access_token;
   var done = false;
@@ -139,4 +139,4 @@ async function getDataHandleTokenExpiration(environment, params, urlCreator) {
   return result;
 }
 
-module.exports = { getDataHandleTokenExpiration }
+module.exports = { fetchDC }
