@@ -12,11 +12,20 @@ Once that configuration has happened, you can get the appropriate parameters and
 
 Note that you should keep the paramters that allow you to hit the DotAlign Cloud API, secret and only in the .env file. In this repo, the .env file is not checked into source control via a .gitignore entry.
 
-## Run the script
+## npm install 
 
-At that point, you can run the node script:
+Make sure the required modules are installed, by running the following command.
 
     > npm install 
-    > node app.js
 
-It will obtain an access token, and use that to iterate through all the people records available in DotAlign Cloud. If the token expires, it will get a new one. 
+## Run the script
+
+Now you can run one of the sample programs. The runnable programs have the format `app_<SOMENAME>`
+
+    > node app_iterateThroughContributors.js
+
+    What this program does is fetch the members of a team, and then iterate through all members to get each member's people and companies.
+
+## Extra
+
+The sample programs use the `dotAlignCloud` module which will obtain an access token, and use that to access the various API end points. If the token expires, the module will automatically get a new one.
