@@ -8,6 +8,9 @@
   "license": "MIT",
   "dependencies": {
     "dotenv": "^8.2.0",
-    "node-fetch": "^2.6.0"
+    "express": "^4.17.1",
+    "jsforce": "^1.9.3",
+    "node-fetch": "^2.6.0",
+    "opn": "^6.0.0"
   }
 }

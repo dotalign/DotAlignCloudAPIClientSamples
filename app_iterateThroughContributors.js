@@ -1,7 +1,7 @@
-const dotAlignUtils = require("./dotalignUtils");
-const dotAlignCloud = require("./dotalignCloud");
-const dotalignUrls = require("./dotalignUrls");
-const helpers = require("./helpers");
+const dotAlignUtils = require("./dotaligncloud/dotalignUtils");
+const dotAlignCloud = require("./dotaligncloud/dotalignCloud");
+const dotalignUrls = require("./dotaligncloud/dotalignUrls");
+const helpers = require("./dotaligncloud/helpers");
 
 async function main() {
   var environment = await helpers.getEnvironmentParams();
