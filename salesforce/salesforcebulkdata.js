@@ -1,4 +1,4 @@
-var dotalignUtils = require('./../dotaligncloud/dotalignutils');
+var dotAlignUtils = require('./../dotaligncloud/dotalignutils');
 var metadata = require('./salesforcemetadata');
 
 async function loadContacts(connection, contacts) {
@@ -21,7 +21,7 @@ async function deleteContacts(connection, entityName, criteria) {
                 };
             }
       
-            dotalignUtils.logObject(result);
+            dotAlignUtils.logObject(result);
 
             return { 
                 success: true,
@@ -36,7 +36,7 @@ async function bulkLoad(connection, entityName, entityData) {
     batch.execute(entityData);
 
     batch.on("queue", async function(batchInfo) { 
-        dotalignUtils.logObject(batchInfo);
+        dotAlignUtils.logObject(batchInfo);
         batchId = batchInfo.id;
         jobId = batchInfo.jobId;
 
@@ -46,11 +46,11 @@ async function bulkLoad(connection, entityName, entityData) {
     });
 
     batch.on("error", async function(error) {
-        dotalignUtils.logObject(error);
+        dotAlignUtils.logObject(error);
     });
 
     batch.on("response", async function(result) {
-        dotalignUtils.logObject(result);
+        dotAlignUtils.logObject(result);
 
         for (var i = 0; i < result.length; i++) {
             if (result[i].success) {

@@ -1,95 +1,22 @@
 const nodeUtils = require('util');
-const dotAlignUtils = require('./../dotaligncloud/dotalignutils');
+const dotAlignUtils = require('./../dotaligncloud/dotalignUtils');
+const dotAlignContact = require('./metadata/dotaligncontact');
+const dotAlignAccount = require('./metadata/dotalignaccount');
+const dotAlignContactAccountRelationship = require('./metadata/dotaligncontactaccountrelationship');
 
-var metadata = [{
-    fullName: 'DotAlignContact__c',
-    label: 'DotAlign contact',
-    pluralLabel: 'DotAlign contacts',
-    enableActivities: "true",
-    enableReports: "true",
-    enableSearch: "true",
-    enableSharing: "true",
-    nameField: {
-        type: 'Text',
-        label: 'Contact name'
-    },
-    fields: [{
-        fullName: "FullName__c",
-        label: "Name",
-        type: "Text",
-        length: 200,
-        inlineHelpText: "The contact's full name",
-        defaultValue: ""
-    }, {
-        fullName: "EmailAddress__c",
-        label: "Email address",
-        type: "Email",
-        inlineHelpText: "The email address of the contact",
-        defaultValue: "",
-        unique: "true"
-    }, {
-        fullName: "CompanyName__c",
-        label: "Company",
-        type: "Text",
-        length: 100,
-        inlineHelpText: "The name of the company that the contact works at",
-        defaultValue: ""
-    }, {
-        fullName: "Score__c",
-        label: "Relationship score",
-        type: "Number",
-        precision: 3,
-        scale: 0,
-        inlineHelpText: "The relationship score of our firm with the contact",
-        defaultValue: "",
-        trackHistory: "false"
-    }, {
-        fullName: "BestKnower__c",
-        label: "Best knower",
-        type: "Text",
-        length: 200,
-        inlineHelpText: "The name of the person with the warmest relationship with the contact",
-        defaultValue: ""
-    }],
-    deploymentStatus: 'Deployed',
-    sharingModel: 'ReadWrite'
-}, {
-    fullName: 'DotAlignAccount__c',
-    label: 'DotAlign account',
-    pluralLabel: 'DotAlign accounts',
-    enableActivities: "true",
-    enableReports: "true",
-    enableSearch: "true",
-    enableSharing: "true",
-    nameField: {
-        type: 'Text',
-        label: 'Company name'
-    },
-    fields: [{
-        fullName: "CompanyName__c",
-        label: "Name",
-        type: "Text",
-        length: 100,
-        inlineHelpText: "The name of the company",
-        defaultValue: "",
-        unique: "true"
-    }, {
-        fullName: "Url__c",
-        label: "Url",
-        type: "Url",
-        inlineHelpText: "The web address of the company",
-        defaultValue: ""
-    }],
-    deploymentStatus: 'Deployed',
-    sharingModel: 'ReadWrite'
-}];
+var metadata = [
+    dotAlignContact.metadata,
+    dotAlignAccount.metadata,
+    dotAlignContactAccountRelationship.metadata
+];
 
 var entities = {
     contact: metadata[0],
-    account: metadata[1]
+    account: metadata[1],
+    contactAccountRelationship: metadata[0]
 }
 
-async function createCustomObjects(connection) { 
+async function createSchema(connection) { 
     var asyncUpsert = nodeUtils
         .promisify(connection.metadata.upsert)
         .bind(connection.metadata);
@@ -125,6 +52,6 @@ async function readMetadata(connection, type, entities) {
 
 module.exports = {
     entities, 
-    createCustomObjects, 
+    createSchema, 
     readMetadata
 }

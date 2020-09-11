@@ -1,6 +1,6 @@
-const dotAlignUtils = require("./dotaligncloud/dotalignUtils");
-const dotAlignCloud = require("./dotaligncloud/dotalignCloud");
-const dotalignUrls = require("./dotaligncloud/dotalignUrls");
+const dotAlignUtils = require("./dotaligncloud/dotAlignUtils");
+const dotAlignCloud = require("./dotaligncloud/dotAlignCloud");
+const dotAlignUrls = require("./dotaligncloud/dotAlignUrls");
 const helpers = require("./dotaligncloud/helpers");
 
 async function main() {
@@ -17,7 +17,7 @@ async function main() {
   var members = await dotAlignCloud.fetchDC(
     environment, 
     teamMembersParams, 
-    dotalignUrls.teamMemberFetchUrlCreator);
+    dotAlignUrls.teamMemberFetchUrlCreator);
   
   for (var i = 0; i < members.data.length; i++) { 
     var member = members.data[i];
@@ -37,7 +37,7 @@ async function main() {
     var people = await dotAlignCloud.fetchDC(
       environment, 
       params, 
-      dotalignUrls.contributorPeopleFetchUrlCreator);
+      dotAlignUrls.contributorPeopleFetchUrlCreator);
     
     console.log(`\nFetching companies for ${member.userKey}`);
     console.log(`-------`);
@@ -45,7 +45,7 @@ async function main() {
     var companies = await dotAlignCloud.fetchDC(
       environment, 
       params, 
-      dotalignUrls.contributorCompaniesFetchUrlCreator);
+      dotAlignUrls.contributorCompaniesFetchUrlCreator);
   }
 }
 

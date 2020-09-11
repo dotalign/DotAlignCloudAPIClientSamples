@@ -1,4 +1,4 @@
-var dotalignUtils = require('./../dotaligncloud/dotalignutils');
+var dotAlignUtils = require('./../dotaligncloud/dotalignutils');
 
 async function convertToDotAlignContacts(peopleRecords) { 
     var contacts = [];

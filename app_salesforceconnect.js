@@ -2,7 +2,7 @@ require("dotenv").config();
 var opn = require('opn');
 var app = require("express")();
 var jsforce = require("jsforce");
-var dotalignUtils = require("./dotaligncloud/dotalignutils");
+var dotAlignUtils = require("./dotaligncloud/dotAlignutils");
 var dataOrchestrator = require("./salesforce/dataorchestrator");
 
 const salesforceKey = process.env.SALESFORCE_KEY;
@@ -46,7 +46,7 @@ app.get(`/${redirectUri}`, async function(req, res) {
         return console.error(error);
       }
 
-      dotalignUtils.logObject(result);
+      dotAlignUtils.logObject(result);
 
       await dataOrchestrator.kickOffDataSync(authenticatedConnection);
     });
