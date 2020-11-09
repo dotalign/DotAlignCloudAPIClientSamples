@@ -1,8 +1,7 @@
 var dotAlignUtils = require('./../dotaligncloud/dotalignutils');
-var metadata = require('./salesforcemetadata');
+var metadata = require('./metadata/salesforcemetadata');
 
 async function loadContacts(connection, contacts) {
-    
     await bulkLoad(
         connection,
         metadata.entities.contact.fullName, 
@@ -36,6 +35,7 @@ async function bulkLoad(connection, entityName, entityData) {
     batch.execute(entityData);
 
     batch.on("queue", async function(batchInfo) { 
+        console.log("A bulk data load request for Salesforce was queued");
         dotAlignUtils.logObject(batchInfo);
         batchId = batchInfo.id;
         jobId = batchInfo.jobId;
@@ -46,10 +46,12 @@ async function bulkLoad(connection, entityName, entityData) {
     });
 
     batch.on("error", async function(error) {
+        console.log("There was an error loading data into Salesforce");
         dotAlignUtils.logObject(error);
     });
 
     batch.on("response", async function(result) {
+        console.log("The bulk operation was completed, and the following is the response");
         dotAlignUtils.logObject(result);
 
         for (var i = 0; i < result.length; i++) {

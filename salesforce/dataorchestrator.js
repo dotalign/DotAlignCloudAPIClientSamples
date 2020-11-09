@@ -3,9 +3,10 @@ const dotAlignUtils = require('./../dotaligncloud/dotAlignutils');
 const dotAlignCloud = require('./../dotaligncloud/dotAligncloud');
 const dotAlignHelpers = require('./../dotaligncloud/helpers');
 const dotAlignUrls = require('./../dotaligncloud/dotAlignUrls');
-const metadata = require('./salesforcemetadata');
-const dataConverter = require('./salesforcedataconverter');
+const metadata = require('./metadata/salesforcemetadata');
+const dataConverter = require('./converters/salesforcedataconverter');
 const bulkDataHandler = require('./salesforcebulkdata');
+const fetchers = require('../fetchers/iterateContributors');
 
 async function kickOffDataSync(connection) {
     
@@ -14,7 +15,7 @@ async function kickOffDataSync(connection) {
     var peopleFetchResult = await fetchPeopleRecords(connection);
     var peopleRecords = peopleFetchResult.data;
     var contacts = await dataConverter.convertToDotAlignContacts(peopleRecords);
-    // var result = await bulkDataHandler.loadContacts(connection, contacts);
+    var result = await bulkDataHandler.loadContacts(connection, contacts);
 }
 
 async function readMetadata(connection, type, names) {

@@ -1,19 +1,24 @@
 const nodeUtils = require('util');
-const dotAlignUtils = require('./../dotaligncloud/dotalignUtils');
-const dotAlignContact = require('./metadata/dotaligncontact');
-const dotAlignAccount = require('./metadata/dotalignaccount');
-const dotAlignContactAccountRelationship = require('./metadata/dotaligncontactaccountrelationship');
+const dotAlignUtils = require('../../dotaligncloud/dotalignUtils');
+const dotAlignContact = require('./dotaligncontact');
+const dotAlignAccount = require('./dotalignaccount');
+const dotAlignContributor = require('./dotaligncontributor');
+const dotAlignContactAccountRelationship = require('./dotalignaccountcontactrelationship');
+const dotAlignContributorContactRelationship = require('./dotaligncontributorcontactrelationship');
 
 var metadata = [
     dotAlignContact.metadata,
     dotAlignAccount.metadata,
-    dotAlignContactAccountRelationship.metadata
+    dotAlignContributor.metadata,
+    dotAlignContactAccountRelationship.metadata,
+    dotAlignContributorContactRelationship.metadata
 ];
 
 var entities = {
     contact: metadata[0],
     account: metadata[1],
-    contactAccountRelationship: metadata[0]
+    contactAccountRelationship: metadata[2],
+    contributorContactRelationship: metadata[3]
 }
 
 async function createSchema(connection) { 
